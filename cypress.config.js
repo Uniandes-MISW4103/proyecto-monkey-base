@@ -2,7 +2,7 @@ const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
   projectId: "monkey-cypress.io.github.thesoftwaredesignlab",
-  reporter: 'mochawesome',
+  reporter: require.resolve('mochawesome'),
   reporterOptions: {
     reportDir: 'cypress/results',
     reportFilename: 'monkey-report',
