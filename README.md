@@ -6,63 +6,73 @@ Este repositorio está basado en la implementación de [TheSoftwareDesignLab/mon
 
 ## Requisitos
 
-- Node.js (v20 o superior). Recomendamos usar lts/iron.
-- npm o yarn para la gestión de dependencias.
+- Node.js (v22 o superior). Recomendamos usar `lts/jod`.
+- npm para la gestión de dependencias.
 
 ## Cómo ejecutar
+
 Para usar el monkey, debes seguir estos pasos:
 
 - **Instalar los módulos requeridos**
 
-    ```bash
-    # using npm
-    npm install
-    # using yarn
-    yarn install
-    ```
+  Desde la **raíz del repositorio**:
 
-- **Configurar los parámetros deseados**: La carpeta raíz del repositorio contiene los archivos de configuración de Cypress (`cypress.config.js`), los cuales incluyen los parámetros de configuración para el monkey aleatorio.
+  ```bash
+  npm run monkey:install
+  npm run monkey:prepare
+  ```
 
-    ```javascript
+  O bien, desde el directorio del módulo:
 
-    const { defineConfig } = require("cypress");
+  ```bash
+  # using npm
+  npm install
+  npm run prepare
+  ```
 
-    module.exports = defineConfig({
-        // ...
-        e2e: {
-            // ...
-            baseUrl: "https://www.google.com/",
-        },
-        env: {
-            seed: 0xf1ae533d,   // Test seed intended to allow for consistent values in tests
-            delay: 1000,        // Delay between action executions
-            
-            actions: {
-                click: 0,       // Hovers and clicks (single, double, right) on a random position
-                scroll: 0,      // srolls (horizontal and verticall)
-                keypress: 0,    // alphanumeric and special keys
-                viewport: 0,    // Change in viewports and orientation
-                navigation: 0,  // reload, go back, go forward
+- **Configurar los parámetros deseados**: La carpeta raíz del módulo contiene el archivo de configuración de Cypress (`cypress.config.js`), que incluye los parámetros del monkey aleatorio.
 
-                smartClick: 0,      // Hovers and clicks (single, double, right) on clickable elements
-                smartCleanup: 0,    // Clears inputs, cookies and local storage
-                smartInput: 0,      // Fills input tags with fake data (multi-character)
-            },
-        },
-        // ...
-    });
+  El campo `baseUrl` debe apuntar a la instancia de Ghost que deseas probar. Por defecto está configurado como `http://localhost:2368`, que corresponde a una instancia local. Actualiza este valor con la URL de tu entorno.
 
-    ```
+  ```javascript
+  const { defineConfig } = require("cypress");
 
-- **Ejecutar el monkey**: Los comandos para ejecutar las pruebas deben ejecutarse desde la carpeta raíz.
+  module.exports = defineConfig({
+    // ...
+    e2e: {
+      // ...
+      baseUrl: "https://www.google.com/",
+    },
+    env: {
+      seed: 0xf1ae533d, // Test seed intended to allow for consistent values in tests
+      delay: 1000, // Delay between action executions
 
-    ```bash
-    npm run test:ui
-    # Ejecución en modo headless
-    npm run test
-    ```
-    Nota: El navegador predeterminado es Electron 78 en modo headless. Para probar con otro navegador, agrega la opción `--browser <nombre-o-ruta-del-navegador>` al comando de ejecución, indicando cuál de los [navegadores soportados](https://docs.cypress.io/guides/guides/launching-browsers.html#Browsers) deseas usar.
+      actions: {
+        click: 0, // Hovers and clicks (single, double, right) on a random position
+        scroll: 0, // srolls (horizontal and verticall)
+        keypress: 0, // alphanumeric and special keys
+        viewport: 0, // Change in viewports and orientation
+        navigation: 0, // reload, go back, go forward
 
+        smartClick: 0, // Hovers and clicks (single, double, right) on clickable elements
+        smartCleanup: 0, // Clears inputs, cookies and local storage
+        smartInput: 0, // Fills input tags with fake data (multi-character)
+      },
+    },
+    // ...
+  });
+  ```
+
+- **Ejecutar el monkey**: Los comandos para ejecutar las pruebas deben ejecutarse desde la **raíz del repositorio**.
+
+  ```bash
+  # Con interfaz gráfica
+  npm run monkey:ui
+  # Modo headless
+  npm run monkey:test
+  ```
+
+  Nota: El navegador predeterminado es Electron 78 en modo headless. Para probar con otro navegador, agrega la opción `--browser <nombre-o-ruta-del-navegador>` al comando de ejecución, indicando cuál de los [navegadores soportados](https://docs.cypress.io/guides/guides/launching-browsers.html#Browsers) deseas usar.
 
 ## Configuración
 
@@ -85,5 +95,6 @@ Adicionalmente, hay 3 categorías _más inteligentes_ que pueden incluirse en la
 El monkey está configurado para usar [Mochawesome](https://www.npmjs.com/package/cypress-mochawesome-reporter) como herramienta de reporte. Por defecto, el reporte contendrá la secuencia de eventos intentados que se ejecutaron y un video de la ejecución.
 
 > [!NOTE]
+>
 > - El reporte solo se genera para ejecuciones en modo headless.
 > - Para ejecuciones largas, el video puede deshabilitarse en la configuración de Cypress (`video: false`), o la compresión puede modificarse para reducir el tamaño del archivo (`videoCompression`).
