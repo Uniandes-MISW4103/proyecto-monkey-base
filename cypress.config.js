@@ -6,7 +6,7 @@ module.exports = defineConfig({
   reporterOptions: {
     reportDir: 'cypress/results',
     reportFilename: 'monkey-report',
-    overwite: true,
+    overwrite: true,
     json: true,
     charts: true, 
   },
@@ -14,7 +14,7 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    baseUrl: "https://ghost.org/",
+    baseUrl: "http://localhost:2368",
   },
   env: {
     seed: 0xf1ae533d,
