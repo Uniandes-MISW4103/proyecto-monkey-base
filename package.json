@@ -24,13 +24,13 @@
     }
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "main": "cypress.config.js",
   "scripts": {
     "prepare": "npx cypress install",
     "clean:reports": "rm -rf cypress/reports/* || true",
-    "test": "npx cypress run",
+    "test": "npx cypress run --browser ${BROWSER:-electron}",
     "test:ui": "npx cypress open"
   },
   "dependencies": {
