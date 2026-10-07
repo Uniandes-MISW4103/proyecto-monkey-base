@@ -33,6 +33,8 @@ describe("monkey", () => {
     cy.on("window:alert", (text) => {
       recordEvent({ title: "Window alert", value: text });
     });
+    // Link to the run's video (relative to the report in cypress/results).
+    recordEvent("videos/monkey.cy.js.mp4");
   });
 
   /** seed to generate pseudo-random events */
@@ -77,10 +79,6 @@ describe("monkey", () => {
 
     cy.visit("");
     cy.wait(delay);
-  });
-
-  after(() => {
-    cy.addActionContext("videos/monkey.cy.js.mp4");
   });
 
   /**
