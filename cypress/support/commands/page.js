@@ -35,7 +35,9 @@ const navigateForward = () => cy.go(1);
 
 const navigateBack = () => {
   cy.url().then((url) => {
-    if (Cypress.config().baseUrl !== url) cy.go(-1);
+    // Going back from the start page would leave the application (about:blank). Compare
+    // normalized URLs: baseUrl usually has no trailing slash, the page URL does.
+    if (new URL(url).href !== new URL(Cypress.config("baseUrl")).href) cy.go(-1);
   });
 };
 

@@ -19,3 +19,4 @@ import "./commands/index";
 import "./commands/keboard";
 import "./commands/mouse";
 import "./commands/page";
+import "./stay-on-origin";
