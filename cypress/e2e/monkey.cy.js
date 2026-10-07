@@ -28,11 +28,11 @@ describe("monkey", () => {
   });
 
   /** seed to generate pseudo-random events */
-  const seed = Cypress.env("seed");
+  const seed = Cypress.expose("seed");
   /** delay between events */
-  const delay = Cypress.env("delay");
+  const delay = Cypress.expose("delay");
   /** number of actions to perform during execution */
-  const actions = Cypress.env("actions");
+  const actions = Cypress.expose("actions");
 
   /**
    * Represents the state of the application during testing.

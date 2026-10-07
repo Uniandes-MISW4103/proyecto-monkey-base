@@ -16,7 +16,7 @@ module.exports = defineConfig({
     },
     baseUrl: "http://localhost:2368",
   },
-  env: {
+  expose: {
     seed: 0xf1ae533d,
     delay: 1000,
     actions: {
