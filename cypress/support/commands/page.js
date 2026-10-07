@@ -35,7 +35,9 @@ const navigateForward = () => cy.go(1);
 
 const navigateBack = () => {
   cy.url().then((url) => {
-    if (Cypress.config().baseUrl !== url) cy.go(-1);
+    // Going back from the start page would leave the application (about:blank). Compare
+    // normalized URLs: baseUrl usually has no trailing slash, the page URL does.
+    if (new URL(url).href !== new URL(Cypress.config("baseUrl")).href) cy.go(-1);
   });
 };
 
@@ -60,9 +62,11 @@ const clearCookies = () => {
 };
 
 const clearInput = (randomFn) => {
-  cy.get("input").then(($candidates) => {
-    const $visibleCandidates = $candidates
-      .filter((_i, candidate) => !Cypress.dom.isHidden(candidate))
+  // cy.get("input") would fail the run on pages without inputs; look them up from the body.
+  cy.get("body").then(($body) => {
+    const $visibleCandidates = $body
+      .find("input")
+      .filter((_i, candidate) => !Cypress.dom.isHidden(candidate));
     if ($visibleCandidates.length) {
       const index = randomFn(0, $visibleCandidates.length - 1);
       cy.wrap($visibleCandidates[index]).clear();

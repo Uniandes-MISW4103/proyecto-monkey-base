@@ -14,9 +14,9 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-require("cypress-plugin-tab");
 
 import "./commands/index";
 import "./commands/keboard";
 import "./commands/mouse";
 import "./commands/page";
+import "./stay-on-origin";

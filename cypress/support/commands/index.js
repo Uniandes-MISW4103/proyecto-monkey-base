@@ -6,7 +6,7 @@ Cypress.Commands.add('addActionContext', (details) => {
 
 Cypress.Commands.add(
   "updateViewport",
-  { prevSubject: Window },
+  { prevSubject: "window" },
   (win, state) => {
     state.viewport = {
       w: Cypress.config("viewportWidth"),

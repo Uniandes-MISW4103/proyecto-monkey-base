@@ -8,12 +8,10 @@ const enterKey = (win) => {
   }
 };
 
-const tabKey = (win) => {
-  if (win.document.activeElement) {
-    cy.wrap(win.document.activeElement).tab().focus();
-  } else {
-    cy.get("body").tab().focus();
-  }
+// Native key press (Cypress >= 14.3): the browser moves the focus like a real Tab key.
+// Returns nothing on purpose: rKeypress records the return value in the report.
+const tabKey = () => {
+  cy.press(Cypress.Keyboard.Keys.TAB);
 };
 
 const typeKey = (win, randomFn) => {
@@ -64,7 +62,7 @@ Cypress.Commands.add(
   (win, randomFn, callback) => {
     const actions = [
       () => enterKey(win),
-      () => tabKey(win),
+      () => tabKey(),
       () => typeKey(win, randomFn),
       () => typeSpecialKey(win, randomFn),
     ];
@@ -84,17 +82,17 @@ Cypress.Commands.add(
 Cypress.Commands.add("rInput", (randomFn, callback) => {
   const actionBytype = {
     email: faker.internet.email,
-    date: faker.date.anytime,
+    // <input type="date"> only accepts yyyy-mm-dd; faker returns a Date object.
+    date: () => faker.date.anytime().toISOString().slice(0, 10),
     tel: faker.phone.number,
     url: faker.internet.url,
     number: faker.number.int,
     text: faker.lorem.sentence,
     password: faker.internet.password,
   };
-  const names = Object.keys(actionBytype);
-
-  cy.get("input").then(($candidates) => {
-    const $visibleCandidate = $candidates.filter(
+  // cy.get("input") would fail the run on pages without inputs; look them up from the body.
+  cy.get("body").then(($body) => {
+    const $visibleCandidate = $body.find("input").filter(
       (_i, candidate) => !Cypress.dom.isHidden(candidate)
     );
     if ($visibleCandidate.length) {
@@ -111,7 +109,7 @@ Cypress.Commands.add("rInput", (randomFn, callback) => {
       callback({
         title: "Input",
         value: {
-          type: names[index],
+          type: elementType,
           input,
         },
       });

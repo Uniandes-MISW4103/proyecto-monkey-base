@@ -14,9 +14,11 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    baseUrl: "http://localhost:2368",
+    // Application explored by the monkey. To explore Ghost, use "http://localhost:2368"
+    // (or run: npx cypress run --config baseUrl=http://localhost:2368).
+    baseUrl: "https://example.cypress.io",
   },
-  env: {
+  expose: {
     seed: 0xf1ae533d,
     delay: 1000,
     actions: {

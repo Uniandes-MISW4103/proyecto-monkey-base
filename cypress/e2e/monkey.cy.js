@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import addContext from "mochawesome/addContext";
 
 function jsf32(a, b, c, d) {
   return function () {
@@ -16,23 +17,32 @@ function jsf32(a, b, c, d) {
 }
 
 describe("monkey", () => {
-  cy.on("uncaught:exception", (value) => {
-    cy.addActionContext({ title: "Uncaught exception", value });
-  });
-  cy.on("window:alert", (value) => {
-    cy.addActionContext({ title: "Window alert", value });
-  });
-  cy.on("fail", (value) => {
-    cy.addActionContext({ title: "Fail", value });
-    return false;
+  /**
+   * Adds an entry to the Mochawesome report from an event handler. Handlers must not queue Cypress
+   * commands (cy.addActionContext), so the entry is registered directly.
+   */
+  const recordEvent = (details) =>
+    cy.once("test:after:run", (test) => addContext({ test }, details));
+
+  beforeEach(() => {
+    // An uncaught exception is a finding: it is recorded and then fails the test, as does any
+    // other failure, so the report shows the run did not finish its action budget.
+    cy.on("uncaught:exception", (error) => {
+      recordEvent({ title: "Uncaught exception", value: error.message });
+    });
+    cy.on("window:alert", (text) => {
+      recordEvent({ title: "Window alert", value: text });
+    });
+    // Link to the run's video (relative to the report in cypress/results).
+    recordEvent("videos/monkey.cy.js.mp4");
   });
 
   /** seed to generate pseudo-random events */
-  const seed = Cypress.env("seed");
+  const seed = Cypress.expose("seed");
   /** delay between events */
-  const delay = Cypress.env("delay");
+  const delay = Cypress.expose("delay");
   /** number of actions to perform during execution */
-  const actions = Cypress.env("actions");
+  const actions = Cypress.expose("actions");
 
   /**
    * Represents the state of the application during testing.
@@ -69,10 +79,6 @@ describe("monkey", () => {
 
     cy.visit("");
     cy.wait(delay);
-  });
-
-  after(() => {
-    cy.addActionContext("videos/monkey.cy.js.mp4");
   });
 
   /**
