@@ -9,7 +9,10 @@ const enterKey = (win) => {
 };
 
 // Native key press (Cypress >= 14.3): the browser moves the focus like a real Tab key.
-const tabKey = () => cy.press(Cypress.Keyboard.Keys.TAB);
+// Returns nothing on purpose: rKeypress records the return value in the report.
+const tabKey = () => {
+  cy.press(Cypress.Keyboard.Keys.TAB);
+};
 
 const typeKey = (win, randomFn) => {
   const chars =
