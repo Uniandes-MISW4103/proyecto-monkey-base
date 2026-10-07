@@ -36,7 +36,6 @@
   "dependencies": {
     "@faker-js/faker": "~10.6.0",
     "cypress": "~16.1.1",
-    "cypress-plugin-tab": "^1.0.5",
     "mochawesome": "~8.1.1"
   }
 }

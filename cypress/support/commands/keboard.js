@@ -8,13 +8,8 @@ const enterKey = (win) => {
   }
 };
 
-const tabKey = (win) => {
-  if (win.document.activeElement) {
-    cy.wrap(win.document.activeElement).tab().focus();
-  } else {
-    cy.get("body").tab().focus();
-  }
-};
+// Native key press (Cypress >= 14.3): the browser moves the focus like a real Tab key.
+const tabKey = () => cy.press(Cypress.Keyboard.Keys.TAB);
 
 const typeKey = (win, randomFn) => {
   const chars =
@@ -64,7 +59,7 @@ Cypress.Commands.add(
   (win, randomFn, callback) => {
     const actions = [
       () => enterKey(win),
-      () => tabKey(win),
+      () => tabKey(),
       () => typeKey(win, randomFn),
       () => typeSpecialKey(win, randomFn),
     ];
