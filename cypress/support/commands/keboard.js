@@ -88,8 +88,9 @@ Cypress.Commands.add("rInput", (randomFn, callback) => {
   };
   const names = Object.keys(actionBytype);
 
-  cy.get("input").then(($candidates) => {
-    const $visibleCandidate = $candidates.filter(
+  // cy.get("input") would fail the run on pages without inputs; look them up from the body.
+  cy.get("body").then(($body) => {
+    const $visibleCandidate = $body.find("input").filter(
       (_i, candidate) => !Cypress.dom.isHidden(candidate)
     );
     if ($visibleCandidate.length) {

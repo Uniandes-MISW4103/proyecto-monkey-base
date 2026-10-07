@@ -62,9 +62,11 @@ const clearCookies = () => {
 };
 
 const clearInput = (randomFn) => {
-  cy.get("input").then(($candidates) => {
-    const $visibleCandidates = $candidates
-      .filter((_i, candidate) => !Cypress.dom.isHidden(candidate))
+  // cy.get("input") would fail the run on pages without inputs; look them up from the body.
+  cy.get("body").then(($body) => {
+    const $visibleCandidates = $body
+      .find("input")
+      .filter((_i, candidate) => !Cypress.dom.isHidden(candidate));
     if ($visibleCandidates.length) {
       const index = randomFn(0, $visibleCandidates.length - 1);
       cy.wrap($visibleCandidates[index]).clear();
