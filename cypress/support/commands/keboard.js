@@ -79,15 +79,14 @@ Cypress.Commands.add(
 Cypress.Commands.add("rInput", (randomFn, callback) => {
   const actionBytype = {
     email: faker.internet.email,
-    date: faker.date.anytime,
+    // <input type="date"> only accepts yyyy-mm-dd; faker returns a Date object.
+    date: () => faker.date.anytime().toISOString().slice(0, 10),
     tel: faker.phone.number,
     url: faker.internet.url,
     number: faker.number.int,
     text: faker.lorem.sentence,
     password: faker.internet.password,
   };
-  const names = Object.keys(actionBytype);
-
   // cy.get("input") would fail the run on pages without inputs; look them up from the body.
   cy.get("body").then(($body) => {
     const $visibleCandidate = $body.find("input").filter(
@@ -107,7 +106,7 @@ Cypress.Commands.add("rInput", (randomFn, callback) => {
       callback({
         title: "Input",
         value: {
-          type: names[index],
+          type: elementType,
           input,
         },
       });
