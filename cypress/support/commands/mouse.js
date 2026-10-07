@@ -53,7 +53,7 @@ const cssSelectorPath = (element) => {
  */
 Cypress.Commands.add(
   "rElement",
-  { prevSubject: Window },
+  { prevSubject: "window" },
   (win, randomFn, state) => {
     state.pos.x = randomFn(0, state.viewport.w);
     state.pos.y = randomFn(0, state.viewport.h);
@@ -75,7 +75,7 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add("rClickable", { prevSubject: Window }, (win, randomFn) => {
+Cypress.Commands.add("rClickable", { prevSubject: "window" }, (win, randomFn) => {
   const tags = ["a", "button", "input", "select", "textarea"];
   const target = tags[randomFn(0, tags.length - 1)];
   const type = `Clickable ${target} Element`;
