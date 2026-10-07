@@ -1,100 +1,110 @@
-# Cypress Random Tester (Monkey)
+# Proyecto Base: Pruebas de Reconocimiento con un Monkey (Cypress)
 
-Este repositorio contiene el código para un monkey aleatorio desarrollado utilizando [Cypress](https://www.cypress.io/), un ejecutor de pruebas End to End construido sobre JavaScript. Usamos esta tecnología debido a la facilidad para gestionar páginas web en una variedad de navegadores, incluyendo Chrome, Canary, Edge, Electron, etc., y su funcionalidad de grabar y reproducir. La idea del primer monkey es realizar una prueba completamente aleatoria en una aplicación web, inspirado en un monkey similar, el [Android Monkey](https://developer.android.com/studio/test/monkey). El segundo monkey existe debido a la alta tasa de errores y la baja probabilidad de obtener eventos que cambien el estado de la aplicación del monkey Monkey.
-
-Este repositorio está basado en la implementación de [TheSoftwareDesignLab/monkey-cypress](https://github.com/TheSoftwareDesignLab/monkey-cypress).
+Un _monkey_ ejecuta eventos aleatorios sobre una aplicación (clics, teclas, desplazamientos,
+navegación, cambios de tamaño de pantalla) para descubrir fallos que las pruebas guiadas por casos
+no encuentran, inspirado en el [Android Monkey](https://developer.android.com/studio/test/other-testing-tools/monkey).
+Este módulo implementa sobre [Cypress](https://docs.cypress.io) un monkey aleatorio y uno
+"inteligente" que elige elementos interactivos y datos plausibles. Está basado en
+[TheSoftwareDesignLab/monkey-cypress](https://github.com/TheSoftwareDesignLab/monkey-cypress).
 
 ## Requisitos
 
-- Node.js (v22 o superior). Recomendamos usar `lts/jod`.
-- npm para la gestión de dependencias.
+- Node.js 24 (`lts/krypton`). El módulo incluye un `.nvmrc`, por lo que pueden usar `nvm use`.
+- npm (incluido con Node.js).
+- `prepare` descarga el binario de Cypress. En Linux se necesitan las
+  [dependencias del sistema](https://docs.cypress.io/app/get-started/install-cypress#Linux-Prerequisites).
 
-## Cómo ejecutar
+## Instalación
 
-Para usar el monkey, debes seguir estos pasos:
+Desde la **raíz del repositorio** del proyecto:
 
-- **Instalar los módulos requeridos**
+```bash
+npm run monkey:install
+npm run monkey:prepare
+```
 
-  Desde la **raíz del repositorio**:
+> [!IMPORTANT]
+> Instalen siempre desde la raíz. `monkey:install` deja las dependencias del módulo en su propia
+> carpeta `node_modules`, aisladas de los demás módulos. Un `npm install` dentro de la carpeta del
+> módulo instala en la raíz del repositorio y modifica el `package-lock.json` raíz sin ese aislamiento.
 
-  ```bash
-  npm run monkey:install
-  npm run monkey:prepare
-  ```
+## Ejecución
 
-  O bien, desde el directorio del módulo:
+| Acción | Desde la raíz | Desde `reconocimiento/misw-4103-monkey` |
+|---|---|---|
+| Ejecutar el monkey (headless, con reporte y video) | `npm run monkey:test` | `npm test` |
+| Ejecutar con la interfaz de Cypress | `npm run monkey:ui` | `npm run test:ui` |
+| Borrar reportes, capturas y videos anteriores | — | `npm run clean:reports` |
 
-  ```bash
-  # using npm
-  npm install
-  npm run prepare
-  ```
+Para cambiar parámetros sin editar la configuración, ejecuten desde la carpeta del módulo, por
+ejemplo `npx cypress run --expose seed=12345` o
+`npx cypress run --config baseUrl=http://localhost:2368`.
 
-- **Configurar los parámetros deseados**: La carpeta raíz del módulo contiene el archivo de configuración de Cypress (`cypress.config.js`), que incluye los parámetros del monkey aleatorio.
+## Estructura
 
-  El campo `baseUrl` debe apuntar a la instancia de Ghost que deseas probar. Por defecto está configurado como `http://localhost:2368`, que corresponde a una instancia local. Actualiza este valor con la URL de tu entorno.
-
-  ```javascript
-  const { defineConfig } = require("cypress");
-
-  module.exports = defineConfig({
-    // ...
-    e2e: {
-      // ...
-      baseUrl: "https://www.google.com/",
-    },
-    env: {
-      seed: 0xf1ae533d, // Test seed intended to allow for consistent values in tests
-      delay: 1000, // Delay between action executions
-
-      actions: {
-        click: 0, // Hovers and clicks (single, double, right) on a random position
-        scroll: 0, // srolls (horizontal and verticall)
-        keypress: 0, // alphanumeric and special keys
-        viewport: 0, // Change in viewports and orientation
-        navigation: 0, // reload, go back, go forward
-
-        smartClick: 0, // Hovers and clicks (single, double, right) on clickable elements
-        smartCleanup: 0, // Clears inputs, cookies and local storage
-        smartInput: 0, // Fills input tags with fake data (multi-character)
-      },
-    },
-    // ...
-  });
-  ```
-
-- **Ejecutar el monkey**: Los comandos para ejecutar las pruebas deben ejecutarse desde la **raíz del repositorio**.
-
-  ```bash
-  # Con interfaz gráfica
-  npm run monkey:ui
-  # Modo headless
-  npm run monkey:test
-  ```
-
-  Nota: El navegador predeterminado es Electron 78 en modo headless. Para probar con otro navegador, agrega la opción `--browser <nombre-o-ruta-del-navegador>` al comando de ejecución, indicando cuál de los [navegadores soportados](https://docs.cypress.io/guides/guides/launching-browsers.html#Browsers) deseas usar.
+```plaintext
+misw-4103-monkey/
+├── .nvmrc
+├── package.json
+├── cypress.config.js                 # aplicación a explorar y parámetros del monkey
+└── cypress/
+    ├── e2e/monkey.cy.js              # ejecuta el presupuesto de acciones en orden aleatorio
+    └── support/
+        ├── e2e.js
+        ├── stay-on-origin.js         # evita que el monkey salga de la aplicación
+        └── commands/                 # acciones: mouse, teclado, página y utilidades del reporte
+```
 
 ## Configuración
 
-Después de evaluar una serie de posibles eventos, definimos las siguientes 5 categorías básicas en las que los eventos podrían agruparse:
+En `cypress.config.js`:
 
-- **Eventos de Clic Aleatorio**: Clic izquierdo, derecho o doble clic, así como desplazamientos (_mouseover_) realizados a un elemento desde una posición aleatoria.
-- **Eventos de Desplazamiento**: Desplazar la página hacia arriba, abajo, a la izquierda o a la derecha.
-- **Eventos de Teclado**: Introducir un carácter (alfanumérico) o un carácter especial (`Enter`, `Supr`, `Esc`, `Backspace`, `Flechas`) con modificadores (`Shift`, `Alt` o `Ctrl`) dentro de un elemento enfocado. Es equivalente a presionar una tecla del teclado al enfocar un elemento.
-- **Eventos de Navegación de Página**: Navegación típica que un usuario podría realizar, como ir a la página anterior o a la siguiente en la pila de navegación.
-- **Eventos del Navegador**: Eventos que cambian la configuración del navegador, como cambiar el tamaño de la ventana.
+- **`e2e.baseUrl`**: aplicación a explorar. Por defecto `https://example.cypress.io` (un sitio de
+  ejemplo de Cypress) para que el monkey funcione sin preparar nada. Para explorar Ghost usen
+  `http://localhost:2368` (o la URL de su instancia).
+- **`expose.seed`**: semilla de los números aleatorios. Con la misma semilla y la misma aplicación,
+  el monkey repite la misma secuencia de eventos, lo que permite reproducir un fallo.
+- **`expose.delay`**: espera en milisegundos entre acciones.
+- **`expose.actions`**: cuántas veces se ejecuta cada tipo de evento (0 lo desactiva):
 
-Adicionalmente, hay 3 categorías _más inteligentes_ que pueden incluirse en las ejecuciones:
+| Evento | Qué hace |
+|---|---|
+| `click` | Clic, doble clic, clic derecho o _hover_ sobre una posición aleatoria |
+| `scroll` | Desplazamiento hacia arriba, abajo, izquierda o derecha |
+| `keypress` | Enter, Tab, un carácter o una tecla especial (con o sin modificadores) |
+| `viewport` | Cambia el tamaño y la orientación de la pantalla (dispositivos predefinidos) |
+| `navigation` | Recargar, avanzar o retroceder en el historial |
+| `smartClick` | Clic (u otra acción del mouse) sobre un elemento interactivo visible: `a`, `button`, `input`, `select`, `textarea` |
+| `smartCleanup` | Borra el `localStorage`, las cookies o un campo de texto |
+| `smartInput` | Escribe datos plausibles según el tipo del `input` (correo, fecha, teléfono, URL, número, texto, contraseña) |
 
-- **Eventos de Clic Aleatorio Inteligente**: Clic izquierdo, derecho o doble clic, así como desplazamientos (_mouseover_) realizados a un elemento _clickeable_ (`<a>`, `<button>`, `<input>`).
-- **Eventos de Limpieza Inteligente**: Eventos que limpian la configuración del navegador (cookies, almacenamiento local) o limpian un campo `<input>`.
-- **Entrada Inteligente**: Introduce diferentes tipos de valores (frases, correos electrónicos, contraseñas, fechas, números) en un campo `<input>` dependiendo de su tipo.
+`stay-on-origin.js` cancela los clics en enlaces y los envíos de formularios que llevarían a otro
+sitio: desde Cypress 15, navegar a otro origen sin `cy.origin()` hace fallar la ejecución.
 
 ## Reportes
 
-El monkey está configurado para usar [Mochawesome](https://www.npmjs.com/package/cypress-mochawesome-reporter) como herramienta de reporte. Por defecto, el reporte contendrá la secuencia de eventos intentados que se ejecutaron y un video de la ejecución.
+Con `cypress run` se genera un reporte de [Mochawesome](https://github.com/adamgruber/mochawesome) en
+`cypress/results/monkey-report.html` (y `.json`) con la secuencia de eventos ejecutados, más el
+video en `cypress/results/videos/` y las capturas de los fallos en `cypress/results/screenshots/`.
+La carpeta `cypress/results/` está en el `.gitignore`.
 
-> [!NOTE]
->
-> - El reporte solo se genera para ejecuciones en modo headless.
-> - Para ejecuciones largas, el video puede deshabilitarse en la configuración de Cypress (`video: false`), o la compresión puede modificarse para reducir el tamaño del archivo (`videoCompression`).
+Si la ejecución falla (por ejemplo, una excepción no controlada de la aplicación), la prueba aparece
+como fallida y el reporte muestra los eventos que se alcanzaron a ejecutar: es un hallazgo para
+analizar. Reprodúzcanlo con la misma semilla.
+
+## Solución de problemas
+
+- **`Cypress could not verify that this server is running`**: la `baseUrl` no responde; revisen
+  que la aplicación (por ejemplo, Ghost) esté levantada.
+- **`Cannot find module '…/Resources/app/index.js'`**: la variable de entorno `ELECTRON_RUN_AS_NODE`
+  está definida (pasa con procesos lanzados desde extensiones de VS Code, por ejemplo asistentes de
+  IA). Ejecuten desde una terminal normal o eliminen la variable (`unset ELECTRON_RUN_AS_NODE`).
+- **Aviso de Electron obsoleto**: Cypress 16 marca como obsoleto su navegador Electron. Si tienen
+  Chrome, Edge o Firefox, pueden usarlos con `npx cypress run --browser chrome`.
+- **Advertencia `EBADENGINE`**: están usando una versión de Node.js anterior a la 24.
+
+## Referencias
+
+- [monkey-cypress (TheSoftwareDesignLab)](https://github.com/TheSoftwareDesignLab/monkey-cypress)
+- [Documentación de Cypress](https://docs.cypress.io/app/get-started/why-cypress)
+- [`Cypress.expose()`](https://docs.cypress.io/api/cypress-api/expose)
