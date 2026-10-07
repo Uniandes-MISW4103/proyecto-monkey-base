@@ -1,8 +1,8 @@
 /**
  * Keeps the monkey on the application under test.
  *
- * Since Cypress 15, navigating to another origin (even a subdomain) without cy.origin() fails the
- * run, and random clicks, double clicks or an Enter on a focused link easily follow links to other
+ * Cypress fails the run when the page navigates to another origin (even a subdomain) without
+ * cy.origin(), and random clicks, double clicks or an Enter on a focused link easily follow links to other
  * sites. This guard cancels link clicks and form submissions that would leave the current origin;
  * everything else (including same-origin navigation) behaves normally.
  */

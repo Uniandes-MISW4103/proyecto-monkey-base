@@ -79,7 +79,7 @@ En `cypress.config.js`:
 | `smartInput` | Escribe datos plausibles según el tipo del `input` (correo, fecha, teléfono, URL, número, texto, contraseña) |
 
 `stay-on-origin.js` cancela los clics en enlaces y los envíos de formularios que llevarían a otro
-sitio: desde Cypress 15, navegar a otro origen sin `cy.origin()` hace fallar la ejecución.
+sitio, porque Cypress hace fallar la ejecución al navegar a otro origen sin `cy.origin()`.
 
 ## Reportes
 
