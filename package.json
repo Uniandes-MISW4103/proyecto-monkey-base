@@ -29,8 +29,8 @@
   "main": "cypress.config.js",
   "scripts": {
     "prepare": "npx cypress install",
-    "clean:reports": "rm -rf cypress/reports/* || true",
-    "test": "npx cypress run --browser ${BROWSER:-electron}",
+    "clean:reports": "node -e \"require('fs').rmSync('cypress/results', { recursive: true, force: true })\"",
+    "test": "cypress run",
     "test:ui": "npx cypress open"
   },
   "dependencies": {
