@@ -77,6 +77,8 @@ describe("monkey", () => {
       },
     });
 
+    // To explore pages that need a session, log in here before the first visit, for example with
+    // Cypress.expose("ABP_ADMIN_EMAIL") and Cypress.expose("ABP_ADMIN_PASSWORD").
     cy.visit("");
     cy.wait(delay);
   });
