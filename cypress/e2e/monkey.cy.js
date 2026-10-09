@@ -77,7 +77,13 @@ describe("monkey", () => {
       },
     });
 
+    // To explore pages that need a session, log in here before the first visit, for example with
+    // Cypress.expose("ABP_ADMIN_EMAIL") and Cypress.expose("ABP_ADMIN_PASSWORD").
     cy.visit("");
+    // Only for the example demo (remove it when exploring the application under test): StackBlitz
+    // shows a page with a button that starts the project before showing the application.
+    cy.get("button", { timeout: 30000 }).should("be.visible").click();
+    cy.get("form", { timeout: 30000 }).should("be.visible");
     cy.wait(delay);
   });
 

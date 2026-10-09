@@ -1,4 +1,6 @@
 const { defineConfig } = require("cypress");
+// Settings of the application under test, from the repository's .env (see abp.cjs).
+const abp = require("./abp.cjs");
 
 module.exports = defineConfig({
   projectId: "monkey-cypress.io.github.thesoftwaredesignlab",
@@ -14,11 +16,13 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    // Application explored by the monkey. To explore Ghost, use "http://localhost:2368"
-    // (or run: npx cypress run --config baseUrl=http://localhost:2368).
-    baseUrl: "https://example.cypress.io",
+    // Application explored by the monkey: an external demo. To explore the application under test,
+    // use abp.ABP_URL (and log in first, see monkey.cy.js).
+    baseUrl: "https://angular-6-registration-login-example.stackblitz.io",
   },
+  // Cypress.expose("ABP_ADMIN_EMAIL"), etc. come from the repository's .env.
   expose: {
+    ...abp,
     seed: 0xf1ae533d,
     delay: 1000,
     actions: {
