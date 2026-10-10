@@ -1,5 +1,10 @@
 import { faker } from "@faker-js/faker";
 
+// The support files are bundled apart from the spec, so this faker is its own instance: seed it with
+// the run's seed, and fix the reference date of generated dates, so the same seed types the same values.
+faker.seed(Cypress.expose("seed"));
+faker.setDefaultRefDate("2025-01-01T00:00:00.000Z");
+
 const enterKey = (win) => {
   if (win.document.activeElement) {
     cy.wrap(win.document.activeElement).type("{enter}", { force: true });

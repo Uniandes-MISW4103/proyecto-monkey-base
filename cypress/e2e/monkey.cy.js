@@ -1,5 +1,5 @@
-import { faker } from "@faker-js/faker";
 import addContext from "mochawesome/addContext";
+import { createSummary } from "../support/summary";
 
 function jsf32(a, b, c, d) {
   return function () {
@@ -29,9 +29,11 @@ describe("monkey", () => {
     // other failure, so the report shows the run did not finish its action budget.
     cy.on("uncaught:exception", (error) => {
       recordEvent({ title: "Uncaught exception", value: error.message });
+      summary.failure("uncaught-exception", error);
     });
     cy.on("window:alert", (text) => {
       recordEvent({ title: "Window alert", value: text });
+      summary.dialog(text);
     });
     // Link to the run's video (relative to the report in cypress/results).
     recordEvent("videos/monkey.cy.js.mp4");
@@ -41,8 +43,10 @@ describe("monkey", () => {
   const seed = Cypress.expose("seed");
   /** delay between events */
   const delay = Cypress.expose("delay");
-  /** number of actions to perform during execution */
-  const actions = Cypress.expose("actions");
+  /** number of actions to perform during execution (a copy: the run consumes it) */
+  const actions = { ...Cypress.expose("actions") };
+  /** what the run did, written to cypress/results/summary.json */
+  const summary = createSummary({ seed, delay, actions: { ...actions } });
 
   /**
    * Represents the state of the application during testing.
@@ -63,7 +67,6 @@ describe("monkey", () => {
     // initializer pseudo-random generator functions
     random = jsf32(0xf1ae533d, seed, seed, seed);
     randInt = (min, max) => Math.round(random() * (max - min)) + min;
-    faker.seed(seed);
 
     // set the viewport and max scroll dimensions
     cy.window().updateViewport(state);
@@ -109,9 +112,25 @@ describe("monkey", () => {
     smartInput: (cb) => cy.rInput(randInt, cb),
   };
 
-  it("test random events", function () {
-    const addActionContext = (details) => cy.addActionContext(details);
+  afterEach(function () {
+    summary.write(this.currentTest);
+  });
 
+  /** Runs one event of the given type and records it in the summary. */
+  const runEvent = (name) => {
+    let entry;
+    cy.url({ log: false }).then((from) => {
+      entry = summary.start(name, from);
+    });
+    events[name]((details) => {
+      cy.addActionContext(details);
+      entry.detail = details.value;
+    });
+    cy.wait(delay);
+    cy.url({ log: false }).then((to) => summary.finish(entry, to));
+  };
+
+  it("test random events", function () {
     // Extracts available actions with remaining counts and calculates total actions left.
     let [names, actionsLeft] = Object.entries(actions).reduce(
       (acc, a) => {
@@ -134,8 +153,7 @@ describe("monkey", () => {
 
       index = names[randInt(0, availableActions)];
       if (actions[index] > 0) {
-        events[index](addActionContext);
-        cy.wait(delay);
+        runEvent(index);
 
         actions[index]--;
         actionsLeft--;

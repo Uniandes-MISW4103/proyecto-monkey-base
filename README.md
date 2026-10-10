@@ -52,6 +52,7 @@ misw-4103-monkey/
     └── support/
         ├── e2e.js
         ├── stay-on-origin.js         # evita que el monkey salga de la aplicación
+        ├── summary.js                # resumen de la ejecución (summary.json)
         └── commands/                 # acciones: mouse, teclado, página y utilidades del reporte
 ```
 
@@ -64,8 +65,9 @@ En `cypress.config.js`:
   sin preparar nada; ver [Explorar la ABP](#explorar-la-abp).
 - **`expose`**: además de los parámetros del monkey, las variables `ABP_*` del `.env` (ver
   [Explorar la ABP](#explorar-la-abp)).
-- **`expose.seed`**: semilla de los números aleatorios. Con la misma semilla y la misma aplicación,
-  el monkey repite la misma secuencia de eventos, lo que permite reproducir un fallo.
+- **`expose.seed`**: semilla de los números aleatorios: fija los eventos y los datos que escribe
+  `smartInput`. Con la misma semilla, los mismos parámetros y la aplicación en el mismo estado, el
+  monkey repite la misma secuencia de eventos, lo que permite reproducir un fallo.
 - **`expose.delay`**: espera en milisegundos entre acciones.
 - **`expose.actions`**: cuántas veces se ejecuta cada tipo de evento (0 lo desactiva):
 
@@ -108,6 +110,19 @@ Con `cypress run` se genera un reporte de [Mochawesome](https://github.com/adamg
 `cypress/results/monkey-report.html` (y `.json`) con la secuencia de eventos ejecutados, más el
 video en `cypress/results/videos/` y las capturas de los fallos en `cypress/results/screenshots/`.
 La carpeta `cypress/results/` está en el `.gitignore`.
+
+Cada ejecución también escribe `cypress/results/summary.json`, incluso si falla:
+
+- `config`: semilla, espera, presupuesto de acciones y `baseUrl` usados;
+- `status`: `completed` si ejecutó todo el presupuesto, `failed` si se detuvo (con `error`);
+- `results.events`: la secuencia ordenada de eventos, cada uno con su tipo (`action`), su detalle
+  (por ejemplo, la posición del clic o el texto escrito), la URL antes (`from`) y después (`to`) y su
+  resultado (`ok`, `skipped` si no había sobre qué actuar, o `failed`);
+- `results.failures`: las excepciones no controladas de la aplicación, con el evento que las produjo;
+- `results.dialogs`: las alertas que mostró la aplicación.
+
+Para comprobar que una semilla es reproducible, ejecuten dos veces con los mismos parámetros, con la
+aplicación en el mismo estado (`npm run abp:reset` desde la raíz), y comparen `results.events`.
 
 Si la ejecución falla (por ejemplo, una excepción no controlada de la aplicación), la prueba aparece
 como fallida y el reporte muestra los eventos que se alcanzaron a ejecutar: es un hallazgo para
